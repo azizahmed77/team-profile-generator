@@ -12,3 +12,19 @@ test('creates a new Employee object', () => {
     console.log(employee1.name);
 }); 
 
+test('can get name, id,email, and role', () => {
+    const name = 'Aziz';
+    const email = 'ahmed613@umn.edu';
+    const id = 33
+    const employee1 = new Employee(name,email,id);
+
+    expect(employee1.getName()).toBe(name);
+    expect(employee1.getEmail()).toBe(email);
+    expect(employee1.getId()).toBe(id);
+    expect(employee1.getRole()).toBe('Employee');
+
+    console.log(employee1);
+})
+
+
+
