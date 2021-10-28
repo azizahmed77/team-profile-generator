@@ -1,5 +1,5 @@
 /*GIVEN a command-line application that accepts user input
-WHEN I am prompted for my team members and their information
+WHEN I am prompted for my team employees and their information
 THEN an HTML file is generated that displays a nicely formatted team roster based on user input
 WHEN I click on an email address in the HTML
 THEN my default email program opens and populates the TO field of the email with the address
@@ -17,6 +17,17 @@ WHEN I decide to finish building my team
 THEN I exit the application, and the HTML is generated*/
 
 
+// initialprompt/manager questions
+//push new manager object to team array
+// then ask if they want to add another employee(confirm) or are done
+//then ask what tye of employee(list)
+//then ask relevant questions
+//push new intern/engineer object to team array
+//then check if they want to add another or if they are done, repeat others
+// when done, push to array
+//generate html
+
+
 
 
 
@@ -26,11 +37,9 @@ const Engineer = require('./lib/Engineer');
 const Intern = require('./lib/Intern'); 
 const fs = require('fs'); 
 const inquirer = require('inquirer');
-const { finished } = require('stream');
-const { doesNotMatch } = require('assert');
 
 
-let teamArray = [];
+const teamArray = [];
 
 
 
@@ -39,10 +48,10 @@ const initiatePrompts = () => {
         .prompt([
             {
                 type: 'input',
-                name: 'managerName',
+                name: 'name',
                 message: 'Who is the manager of your workplace?',
-                validate: managerName => {
-                    if (managerName) {
+                validate: name => {
+                    if (name) {
                         return true;
                     } else {
                         console.log('Please enter a name for the manager');
@@ -53,10 +62,10 @@ const initiatePrompts = () => {
             },
             {
                 type: 'input',
-                name: 'managerId',
+                name: 'id',
                 message: 'Please enter Manager`s ID number',
-                validate: managerId => {
-                    if (managerId) {
+                validate: id => {
+                    if (id) {
                         return true;
                     } else {
                         console.log('Please enter a valid ID number');
@@ -96,12 +105,16 @@ const initiatePrompts = () => {
 
             }
         ])
-        .then (answers => {
-            let manager = new Manager(answers.managerName,answers.email,answers.managerId,answers.officeNumber)
+        .then(({name,id,email,officeNumber}) => {
+            let manager = new Manager(name,id,email,officeNumber);
             teamArray.push(manager)
             console.log(teamArray);
+            htmlBody();
+            addEmployeeHTML(manager);
+            employeePrompt()
         })
-        .then(employeePrompt)
+        
+        
         
 }
 
@@ -118,22 +131,22 @@ const employeePrompt = () => {
                 type: 'list',
                 name: 'employeeType',
                 message: "Please choose between the two options",
-                choices: ['Engineer', 'Intern']
+                choices: ['Engineer', 'Intern'],
+                when: ({addEmployee}) => addEmployee
             }
         ])
         .then(answers => {
             if(answers.employeeType === 'Intern') {
-                console.log('success')
+                console.log('int')
                 internPrompt()
             } else if(answers.employeeType === 'Engineer') {
                 console.log('eng')
                 engineerPrompt()
             } else {
-                done()
-
-            }
-           
-        })
+                footer();
+                console.log(teamArray);
+            } 
+            })
 }
 
 const internPrompt = () => {
@@ -141,10 +154,10 @@ const internPrompt = () => {
         .prompt ([
             {
                 type: 'input',
-                name:'internName',
+                name:'name',
                 message: 'Please enter intern`s name',
-                validate: internName => {
-                    if(internName) {
+                validate: name => {
+                    if(name) {
                         return true;
                     } else {
                         console.log('Please enter a name')
@@ -169,10 +182,10 @@ const internPrompt = () => {
             },
             {
                 type: 'input',
-                name:'internId',
+                name:'id',
                 message: 'Please enter an Id number',
-                validate: internId => {
-                    if(internId) {
+                validate: id => {
+                    if(id) {
                         return true;
                     } else {
                         console.log('Please enter an ID number')
@@ -184,7 +197,7 @@ const internPrompt = () => {
             {
                 type: 'input',
                 name:'school',
-                message: 'Please enter name of school intern attends',
+                message: 'Please enter name of school that intern attends',
                 validate: school => {
                     if(school) {
                         return true;
@@ -197,12 +210,14 @@ const internPrompt = () => {
             }
 
         ])
-        .then (answers => {
-            let intern = new Intern(answers.internName,answers.email,answers.internId,answers.school)
+        .then(({name,id,email,school}) => {
+            let intern = new Intern(name,id,email,school);
             teamArray.push(intern)
-            console.log(teamArray)
+            console.log(teamArray);
+            addEmployeeHTML(intern);
             employeePrompt();
         })
+        
 }
 
 
@@ -211,10 +226,10 @@ const engineerPrompt = () => {
         .prompt ([
             {
                 type: 'input',
-                name:'engineerName',
+                name:'name',
                 message: 'Please enter engineer`s name',
-                validate: engineerName => {
-                    if(engineerName) {
+                validate: name => {
+                    if(name) {
                         return true;
                     } else {
                         console.log('Please enter a name')
@@ -239,10 +254,10 @@ const engineerPrompt = () => {
             },
             {
                 type: 'input',
-                name:'engineerId',
+                name:'id',
                 message: 'Please enter an Id number',
-                validate: engineerId => {
-                    if(engineerId) {
+                validate: id => {
+                    if(id) {
                         return true;
                     } else {
                         console.log('Please enter an ID number')
@@ -267,16 +282,126 @@ const engineerPrompt = () => {
             }
 
         ])
-        .then (answers => {
-            let engineer = new Engineer(answers.engineerName,answers.email,answers.engineerId,answers.github)
+        .then(({name,id,email,github}) => {
+            let engineer = new Engineer(name,id,email,github);
             teamArray.push(engineer)
-            console.log(teamArray)
+            console.log(teamArray);
+
+            addEmployeeHTML(engineer);
             employeePrompt();
         })
+        
 }
 
 
+const htmlBody = () => {
+    const template = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta http-equiv="X-UA-Compatible" content="ie=edge">
+          <title>Team-Profile-Generator</title>
+      </head>
+      <body>
+          <nav>
+          <h1>Team Members</h1>
+          </nav>
+          <div class="container">
+              <div>`;
+    fs.writeFile("./dist/index.html", template, (err) => {
+        if (err) {
+            console.log(err);
+        }
+    });
+
+};
+
+const addEmployeeHTML = (employee) => {
+    return new Promise((resolve, reject) => {
+        const name = employee.getName();
+        const role = employee.getRole();
+        const id = employee.getId();
+        const email = employee.getEmail();
+        let data = "";
+        if (role === "Intern") {
+            const school = employee.getSchool();
+            data =
+                `<div>
+            <div>
+                <div>
+                    <h2>${name}</h2>
+                    <h3>Engineer</h3>
+                </div>
+                <ul>
+                    <li>ID: ${id}</li>
+                    <li>Email: <a href="mailto:${email}">${email}</a></li>
+                    <li>School: ${school}</li>
+                </ul>
+            </div>
+        </div>`;
+        } else if (role === "Engineer") {
+            const gitHub = employee.getGitHub();
+            data =
+                `<div>
+            <div>
+                <div>
+                    <h2>${name}</h2>
+                    <h3>Intern</h3>
+                </div>
+                <ul>
+                    <li>ID: ${id}</li>
+                    <li>Email: <a href="mailto:${email}">${email}</a></li>
+                    <li>GitHub: <a href="https://github.com/${gitHub}">${gitHub}</a></li>
+                </ul>
+            </div>
+        </div>`;
+        } else {
+            const officeNumber = employee.getOfficeNumber();
+            data =
+                `<div">
+            <div>
+              <div>
+                  <h2>${name}</h2>
+                  <h3> Manager</h3>
+              </div>
+              <ul>
+                  <li>ID: ${id}</li>
+                  <li>Email: <a href="mailto:${email}">${email}</a></li>
+                  <li>Office Number:${officeNumber}</a></li>
+               </ul>
+            </div>
+        </div>`;
+        }
+        fs.appendFile("./dist/index.html", data, (err) => {
+            if (err) {
+                return reject(err);
+            }
+            return resolve();
+        });
+    });
+}
+
+const footer = () => {
+    const template = ` </div>
+      </div>
+      
+  </body>
+  </html>`;
+
+    fs.appendFile("./dist/index.html", template, (err) => {
+        if (err) {
+            console.log(err);
+        }
+    });
+}
+
 initiatePrompts();
+
+ 
+
+
+
 
 
 
