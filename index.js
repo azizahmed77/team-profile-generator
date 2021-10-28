@@ -27,13 +27,14 @@ const Intern = require('./lib/Intern');
 const fs = require('fs'); 
 const inquirer = require('inquirer');
 const { finished } = require('stream');
+const { doesNotMatch } = require('assert');
 
 
 let teamArray = [];
 
 
 
-const initiatePrompts = async () => {
+const initiatePrompts = () => {
     inquirer
         .prompt([
             {
@@ -95,9 +96,9 @@ const initiatePrompts = async () => {
 
             }
         ])
-        .then(answers => {
-            const manager = new Manager(answers.managerName, answers.email, answers.managerId,answers.officeNumber)
-            teamArray.push(manager);
+        .then (answers => {
+            let manager = new Manager(answers.managerName,answers.email,answers.managerId,answers.officeNumber)
+            teamArray.push(manager)
             console.log(teamArray);
         })
         .then(employeePrompt)
@@ -120,19 +121,162 @@ const employeePrompt = () => {
                 choices: ['Engineer', 'Intern']
             }
         ])
-        .then((response) => {
-            if(response.employeePrompt === 'Intern') {
-                internPrompt();
-            }
-            else if(response.employeePrompt === 'Engineer') {
-                engineerPrompt();
+        .then(answers => {
+            if(answers.employeeType === 'Intern') {
+                console.log('success')
+                internPrompt()
+            } else if(answers.employeeType === 'Engineer') {
+                console.log('eng')
+                engineerPrompt()
             } else {
-                finished();
+                done()
+
             }
+           
         })
 }
 
-initiatePrompts()
+const internPrompt = () => {
+    inquirer
+        .prompt ([
+            {
+                type: 'input',
+                name:'internName',
+                message: 'Please enter intern`s name',
+                validate: internName => {
+                    if(internName) {
+                        return true;
+                    } else {
+                        console.log('Please enter a name')
+                        return false;
+                    }
+                }
+
+            },
+            {
+                type: 'input',
+                name:'email',
+                message: 'Please enter an email adress',
+                validate: email => {
+                    if(email) {
+                        return true;
+                    } else {
+                        console.log('Please enter an email address')
+                        return false;
+                    }
+                }
+
+            },
+            {
+                type: 'input',
+                name:'internId',
+                message: 'Please enter an Id number',
+                validate: internId => {
+                    if(internId) {
+                        return true;
+                    } else {
+                        console.log('Please enter an ID number')
+                        return false;
+                    }
+                }
+
+            },
+            {
+                type: 'input',
+                name:'school',
+                message: 'Please enter name of school intern attends',
+                validate: school => {
+                    if(school) {
+                        return true;
+                    } else {
+                        console.log('Please enter a school')
+                        return false;
+                    }
+                }
+
+            }
+
+        ])
+        .then (answers => {
+            let intern = new Intern(answers.internName,answers.email,answers.internId,answers.school)
+            teamArray.push(intern)
+            console.log(teamArray)
+            employeePrompt();
+        })
+}
+
+
+const engineerPrompt = () => {
+    inquirer
+        .prompt ([
+            {
+                type: 'input',
+                name:'engineerName',
+                message: 'Please enter engineer`s name',
+                validate: engineerName => {
+                    if(engineerName) {
+                        return true;
+                    } else {
+                        console.log('Please enter a name')
+                        return false;
+                    }
+                }
+
+            },
+            {
+                type: 'input',
+                name:'email',
+                message: 'Please enter an email address',
+                validate: email => {
+                    if(email) {
+                        return true;
+                    } else {
+                        console.log('Please enter an email address')
+                        return false;
+                    }
+                }
+
+            },
+            {
+                type: 'input',
+                name:'engineerId',
+                message: 'Please enter an Id number',
+                validate: engineerId => {
+                    if(engineerId) {
+                        return true;
+                    } else {
+                        console.log('Please enter an ID number')
+                        return false;
+                    }
+                }
+
+            },
+            {
+                type: 'input',
+                name:'github',
+                message: 'Please enter name of github account',
+                validate: github => {
+                    if(github) {
+                        return true;
+                    } else {
+                        console.log('Please enter a name')
+                        return false;
+                    }
+                }
+
+            }
+
+        ])
+        .then (answers => {
+            let engineer = new Engineer(answers.engineerName,answers.email,answers.engineerId,answers.github)
+            teamArray.push(engineer)
+            console.log(teamArray)
+            employeePrompt();
+        })
+}
+
+
+initiatePrompts();
 
 
 
