@@ -6,6 +6,23 @@
     "jest": "^27.3.1"
   },
   "scripts": {
-    "test" : "jest"
-  } 
+    "test": "jest"
+  },
+  "name": "team-profile-generator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/azizahmed77/team-profile-generator.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/azizahmed77/team-profile-generator/issues"
+  },
+  "homepage": "https://github.com/azizahmed77/team-profile-generator#readme",
+  "description": ""
 }

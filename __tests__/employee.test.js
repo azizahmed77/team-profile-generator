@@ -2,7 +2,7 @@
 const { expect } = require('@jest/globals');
 const Employee = require('../lib/Employee')
 
-test('creates a new Employee object', () => {
+test('instantiates a new Employee object', () => {
     const employee1 = new Employee('Aziz', 'ahmed613@umn.edu', 33);
 
     expect(employee1.name).toBe('Aziz');
@@ -13,10 +13,12 @@ test('creates a new Employee object', () => {
 }); 
 
 test('can get name, id,email, and role', () => {
+   
     const name = 'Aziz';
     const email = 'ahmed613@umn.edu';
     const id = 33
     const employee1 = new Employee(name,email,id);
+    
 
     expect(employee1.getName()).toBe(name);
     expect(employee1.getEmail()).toBe(email);
